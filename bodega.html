@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bodega Los Amigos SLU</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      color: #2d2d2d;
+    }
+    header {
+      background-color: #8B0000;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    nav {
+      background-color: #8B0000;
+      display: flex;
+      justify-content: center;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 1rem 2rem;
+      display: block;
+      cursor: pointer;
+    }
+    nav a:hover {
+      background-color: #a52a2a;
+    }
+    .pantalla {
+      display: none;
+      padding: 2rem;
+      max-width: 1000px;
+      margin: auto;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .pantalla.active {
+      display: block;
+    }
+    h2 {
+      color: #8B0000;
+    }
+    .vino {
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .vino img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .vino img:hover {
+      transform: scale(1.05);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.8);
+    }
+    .modal-content {
+      display: block;
+      margin: 5% auto;
+      max-width: 700px;
+    }
+    .modal-content img {
+      width: 100%;
+      height: auto;
+    }
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 35px;
+      color: white;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background-color: #2d2d2d;
+      color: white;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    /* Fondo con barricas en presentación */
+    #presentacion {
+      background: url('Barricas.jpg') no-repeat center center/cover;
+      color: white;
+      padding: 4rem 2rem;
+      border-radius: 10px;
+      text-align: center;
+      position: relative;
+      max-width: 1000px;
+      margin: 2rem auto;
+    }
+    #presentacion::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      z-index: 0;
+    }
+    #presentacion h2,
+    #presentacion p {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Estilos para fichas de cata */
+    .ficha {
+      background-color: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .ficha label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+    }
+    .ficha input[type="text"],
+    .ficha textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.5rem 0 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .checkbox-group {
+      margin: 0.5rem 0 1rem;
+    }
+    .checkbox-group label {
+      font-weight: normal;
+      margin-right: 1rem;
+      user-select: none;
+      cursor: pointer;
+    }
+    .checkbox-group input[type="checkbox"],
+    .checkbox-group input[type="radio"] {
+      margin-right: 0.3rem;
+      cursor: pointer;
+    }
+    /* Estilo para sección puntuación total */
+    #puntuacion-total {
+      background: #fff8dc;
+      border: 2px solid #8B0000;
+      border-radius: 8px;
+      padding: 1rem 2rem;
+      max-width: 400px;
+      margin: 2rem auto;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #8B0000;
+    }
+    #calcular-btn {
+      background-color: #8B0000;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    #calcular-btn:hover {
+      background-color: #a52a2a;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bodega Los Amigos SLU</h1>
+    <p>Pasión por el vino, amistad en cada copa</p>
+  </header>
+
+  <nav>
+    <a onclick="mostrarPantalla('presentacion')">Presentación</a>
+    <a onclick="mostrarPantalla('vinos')">Vinos Disponibles</a>
+    <a onclick="mostrarPantalla('fichas')">Fichas de Cata</a>
+  </nav>
+
+  <section id="presentacion" class="pantalla active">
+    <h2>Bienvenidos a Los Amigos SLU</h2>
+    <p>En nuestra bodega fusionamos tradición, amistad y el arte de elaborar vinos únicos. Te invitamos a descubrir nuestros sabores y compartir momentos inolvidables.</p>
+    <p>Ubicados en el corazón de la región vinícola, cada botella cuenta una historia de pasión y dedicación.</p>
+  </section>
+
+  <section id="vinos" class="pantalla">
+    <h2>Nuestros Vinos</h2>
+    <div class="vino">
+      <h3>Faustino Rivero Blanco Semidulce</h3>
+      <img src="faustino.jpg" alt="Faustino Rivero Blanco Semidulce" onclick="mostrarModal(this.src)" />
+      <p>Vino blanco suave y afrutado, con notas de manzana y flor blanca. Ideal como aperitivo o con entrantes ligeros.</p>
+    </div>
+    <div class="vino">
+      <h3>Garu Crianza</h3>
+      <img src="garu.jpg" alt="Garu Crianza" onclick="mostrarModal(this.src)" />
+      <p>Tinto con cuerpo, envejecido en barrica. Vainilla, frutos rojos y un final prolongado. Perfecto para carnes.</p>
+    </div>
+    <div class="vino">
+      <h3>Liskar Garnacha</h3>
+      <img src="Liskar.png" alt="Liskar Garnacha" onclick="mostrarModal(this.src)" />
+      <p>Garnacha joven, vibrante y frutal. Notas de frambuesa y un toque especiado que marida bien con embutidos y pastas.</p>
+    </div>
+    <div class="vino">
+      <h3>Château Haut Gravelier (Bordeaux)</h3>
+      <img src="Château.jpg" alt="Château Haut Gravelier" onclick="mostrarModal(this.src)" />
+      <p>Clásico blend francés de Merlot y Cabernet Sauvignon. Equilibrado, elegante y estructurado. Ideal para ocasiones especiales.</p>
+    </div>
+    <div class="vino">
+      <h3>Cune Rosado</h3>
+      <img src="Cune.jpg" alt="Cune Rosado" onclick="mostrarModal(this.src)" />
+      <p>Fresco y alegre, con aroma a fresa y notas cítricas. Perfecto para días soleados y platos ligeros.</p>
+    </div>
+  </section>
+
+  <section id="fichas" class="pantalla">
+    <h2>Fichas de la Cata:</h2>
+    <div id="fichas-container"></div>
+
+    <div id="puntuacion-total">
+      Puntuación Total Promedio: <span id="promedio">--</span>
+      <br />
+      <button id="calcular-btn" onclick="calcularPuntuacionTotal()">Calcular Puntuación</button>
+    </div>
+  </section>
+
+  <div id="modal" class="modal" onclick="cerrarModal()">
+    <span class="close" onclick="cerrarModal()">&times;</span>
+    <div class="modal-content">
+      <img id="modal-img" src="" alt="Ampliación de vino" />
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Bodega Los Amigos SLU – Todos los derechos reservados</p>
+  </footer>
+
+  <script>
+    function mostrarPantalla(id) {
+      document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function mostrarModal(src) {
+      document.getElementById('modal-img').src = src;
+      document.getElementById('modal').style.display = 'block';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    const fichas = [
+      {
+        titulo: "Faustino Rivero",
+        tipo: "Blanco",
+        variedad: "(Semidulce)",
+        origen: "Rioja",
+        aromas: ["Fruta blanca", "Cítricos", "Floral", "Herbal"],
+        maridaje: "Pescado, marisco, ensaladas frescas"
+      },
+      {
+        titulo: "Garu Crianza",
+        tipo: "Tinto Crianza",
+        variedad: "Tempranillo",
+        origen: "Navarra",
+        aromas: ["Fresa", "Frambuesa", "Floral", "Caramelo"],
+        maridaje: "Carnes, quesos curados, ocasiones especiales"
+      },
+      {
+        titulo: "Liskar Garnacha",
+        tipo: "Tinto",
+        variedad: "Garnacha",
+        origen: "Rioja",
+        aromas: ["Fruta roja", "Vainilla", "Madera", "Especias"],
+        maridaje: "Carnes rojas, quesos curados, embutidos"
+      },
+      {
+        titulo: "Château Haut Gravelier",
+        tipo: "Tinto",
+        variedad: "Merlot-Cabernet",
+        origen: "Bordeaux",
+        aromas: ["Fruta madura", "Regaliz", "Madera", "Cacao"],
+        extra: "Taninos",
+        maridaje: "Asados, guisos, legumbres contundentes"
+      },
+      {
+        titulo: "Cune",
+        tipo: "Rosado",
+        variedad: "Moscatel",
+        origen: "España",
+        aromas: ["Uva fresca", "Flores blancas", "Miel", "Fruta tropical"],
+        maridaje: "Postres, tartas de fruta, como cierre refrescante",
+        dulzorFijo: true
+      }
+    ];
+
+    const contenedor = document.getElementById('fichas-container');
+
+    fichas.forEach(ficha => {
+      const div = document.createElement('div');
+      div.className = 'ficha';
+      div.innerHTML = `
+        <h3>Ficha de Cata – ${ficha.titulo}</h3>
+        <p><strong>Tipo:</strong> ${ficha.tipo}</p>
+        <p><strong>Variedad:</strong> ${ficha.variedad}</p>
+        <p><strong>Origen:</strong> ${ficha.origen}</p>
+
+        <label for="color-${ficha.titulo}">Color:</label>
+        <input type="text" id="color-${ficha.titulo}" placeholder="Describe el color" />
+
+        <div class="checkbox-group">
+          <label>Brillantez:</label>
+          <label><input type="checkbox" name="brillantez-${ficha.titulo}" /> Mate</label>
+          <label><input type="checkbox" name="brillantez-${ficha.titulo}" /> Brillante</label>
+        </div>
+
+        <div class="checkbox-group">
+          <label>Intensidad:</label>
+          <label><input type="checkbox" name="intensidad-${ficha.titulo}" /> Baja</label>
+          <label><input type="checkbox" name="intensidad-${ficha.titulo}" /> Media</label>
+          <label><input type="checkbox" name="intensidad-${ficha.titulo}" /> Alta</label>
+        </div>
+
+        <label for="aroma-${ficha.titulo}">Aroma:</label>
+        <textarea id="aroma-${ficha.titulo}" rows="3" placeholder="Describe los aromas principales">${ficha.aromas.join(', ')}</textarea>
+
+        <label for="maridaje-${ficha.titulo}">Maridaje:</label>
+        <textarea id="maridaje-${ficha.titulo}" rows="2" placeholder="Recomendaciones de maridaje">${ficha.maridaje}</textarea>
+
+        <label for="puntuacion-${ficha.titulo}"><strong>Puntuación (sobre 5):</strong></label>
+        <input type="text" id="puntuacion-${ficha.titulo}" name="puntuacion-${ficha.titulo}" placeholder="Ej: 4.5" style="width: 50px; padding: 0.3rem; font-size: 1rem;" />
+      `;
+      contenedor.appendChild(div);
+    });
+
+    function calcularPuntuacionTotal() {
+      let suma = 0;
+      let cantidad = 0;
+      fichas.forEach(ficha => {
+        const input = document.getElementById(`puntuacion-${ficha.titulo}`);
+        if(input) {
+          const valor = parseFloat(input.value.replace(',', '.')); // aceptar coma decimal
+          if(!isNaN(valor) && valor >= 0 && valor <= 5) {
+            suma += valor;
+            cantidad++;
+          }
+        }
+      });
+      const promedioElem = document.getElementById('promedio');
+      if(cantidad === 0) {
+        promedioElem.textContent = '--';
+        alert('Introduce al menos una puntuación válida entre 0 y 5 para calcular el promedio.');
+      } else {
+        const promedio = (suma / cantidad).toFixed(2);
+        promedioElem.textContent = promedio;
+      }
+    }
+  </script>
+</body>
+</html>
